@@ -534,6 +534,55 @@
     .status-pill .dot, .clearance-panel, .typed-line .cursor { animation: none; }
     #rain { display: none; }
   }
+
+  /* ====================== PRINT ======================
+     Clean single-column document for hiring managers who save or print.
+     Dark-terminal styling becomes plain ink-on-paper; nav and motion go. */
+  @media print {
+    :root, body, body.light {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface2: #ffffff;
+      --border: #bbbbbb;
+      --border-bright: #999999;
+      --accent: #00505e;
+      --accent2: #8e1f4b;
+      --warn: #6e4a00;
+      --text: #222222;
+      --text-bright: #000000;
+      --muted: #555555;
+      --code-bg: #f2f2f2;
+      --green: #0a5c34;
+      --purple: #3a2f99;
+    }
+    * {
+      animation: none !important;
+      transition: none !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+    body { background: #fff; }
+    body::before, .nav, #rain, .skip-link, .hero-links,
+    .typed-line .cursor, .nav-toggle { display: none !important; }
+    body { padding-top: 0; }
+    .container { max-width: 100%; padding: 0; }
+    .hero { padding: 1rem 0 1.5rem; overflow: visible; }
+    h1 { color: #000; font-size: 2rem; }
+    .project-grid, .clearance-grid { grid-template-columns: 1fr; }
+    .project-card, .clearance-panel, .skill-cat, .activity-row, .contact-panel {
+      break-inside: avoid;
+    }
+    .project-card .card-cta { display: none; }
+    .project-card::after {
+      content: attr(href);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: none;
+    }
+    footer { margin-top: 2rem; }
+  }
 </style>
 </head>
 <body>
@@ -840,6 +889,7 @@
   /* ---------- Typed differentiator line ---------- */
   var TYPED_TEXT = 'Security clearance held now — deployable to cleared work from day one.';
   var typedEl = document.getElementById('typed');
+  window.addEventListener('beforeprint', function () { typedEl.textContent = TYPED_TEXT; });
   if (reducedMotion) {
     typedEl.textContent = TYPED_TEXT;
   } else {
