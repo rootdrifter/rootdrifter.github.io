@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<!-- DESIGN RATIONALE:
+     ROOT HUB — rootdrifter.github.io. The front door of the portfolio.
+     Extends the canonical structural tokens shared by all project pages
+     (bg #090d12 / surface #0d1520 / surface2 #101a28 / border #1a2a3a /
+     text #c8d8e8 / muted #4a6a7a / code-bg #060a0f) with the portfolio-primary
+     accent pair: cyan #00e5ff + pink #ff4081 (the ironveil reference palette).
+     Each project card carries its own repo accent as a --glow hover variable —
+     the hub speaks the shared language, the cards keep per-repo character.
+     Share Tech Mono for labels/identifiers, Barlow 300 for prose. Scanline retained.
+     All CSS/JS inline; Google Fonts is the only external dependency. No frameworks.
+     JS: typed differentiator line, hero terminal-rain canvas (≤10% opacity,
+     reduced-motion aware), mobile nav toggle. Everything degrades without JS.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rootdrifter — Security Portfolio | Cleared Security Professional</title>
+<meta name="description" content="Security-cleared graduate portfolio: hardened Linux and GrapheneOS builds, a PTES-aligned penetration test, ML security research, and CTF methodology. Clearance held now — deployable to cleared work from day one. UK · NL · DE.">
+<meta name="keywords" content="security portfolio, security clearance, cleared, SOC analyst, penetration testing, Linux hardening, GrapheneOS, SIEM, ML security, CTF, rootdrifter">
+<meta name="author" content="rootdrifter">
+<meta name="theme-color" content="#00e5ff">
+<link rel="canonical" href="https://rootdrifter.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="rootdrifter portfolio">
+<meta property="og:title" content="rootdrifter — Security Portfolio">
+<meta property="og:description" content="Security-cleared graduate portfolio: hardened systems, offensive methodology, and applied ML security research. Clearance held now — deployable to cleared work from day one.">
+<meta property="og:url" content="https://rootdrifter.github.io/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="rootdrifter — Security Portfolio">
+<meta name="twitter:description" content="Security-cleared graduate portfolio: hardened systems, offensive methodology, applied ML security research. Cleared and deployable from day one.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "rootdrifter",
+  "url": "https://rootdrifter.github.io",
+  "sameAs": ["https://github.com/rootdrifter"],
+  "jobTitle": "Security Professional",
+  "description": "Security-cleared professional building and breaking systems with the same rigour: hardened endpoints, benchmark-mapped penetration testing, and applied ML security research. Clearance held now — deployable to cleared work from day one.",
+  "knowsAbout": ["penetration testing", "Linux hardening", "mobile security", "SIEM", "machine learning security", "causal inference", "DNS filtering", "FIDO2"]
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #090d12;
+    --surface: #0d1520;
+    --surface2: #101a28;
+    --border: #1a2a3a;
+    --border-bright: #2a3f55;
+    --accent: #00e5ff;
+    --accent2: #ff4081;
+    --warn: #ffaa00;
+    --text: #c8d8e8;
+    --text-bright: #e8f2fb;
+    --muted: #4a6a7a;
+    --code-bg: #060a0f;
+    --green: #00ff88;
+    --purple: #7c6fff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 56px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ====================== NAV ====================== */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 40px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+    z-index: 200;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .nav-brand { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  .nav-brand .dim { color: var(--muted); }
+  .nav-links { display: flex; gap: 1.4rem; align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a.ext { color: var(--accent2); }
+  .nav-toggle {
+    display: none;
+    background: none; border: 1px solid var(--border-bright); color: var(--muted);
+    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.15em; padding: 0.15rem 0.55rem; cursor: pointer;
+  }
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 40px; left: 0; right: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      gap: 0;
+      padding: 0.25rem 0;
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 0.6rem 1.25rem; width: 100%; }
+    .nav-toggle { display: block; }
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ====================== HERO ====================== */
+  .hero {
+    position: relative;
+    padding: 7.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  #rain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.10;
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; z-index: 2; }
+
+  .sys-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    opacity: 0.85;
+  }
+
+  h1 {
+    font-size: 3.2rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.05;
+  }
+  h1 .slash { color: var(--accent2); font-weight: 300; margin: 0 0.2em; }
+
+  .hero-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .typed-line {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--accent);
+    margin-top: 1.6rem;
+    min-height: 1.7em;
+    letter-spacing: 0.04em;
+  }
+  .typed-line .cursor {
+    display: inline-block;
+    color: var(--accent);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .status-row { display: flex; gap: 0.7rem; margin-top: 1.6rem; flex-wrap: wrap; }
+  .status-pill {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.32em 0.85em;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .status-pill .dot { animation: pulse-dot 2.4s ease-in-out infinite; display: inline-block; }
+  .pill-cleared { color: var(--green); border-color: var(--green); }
+  .pill-active { color: var(--accent); border-color: var(--accent); }
+  .pill-avail { color: var(--warn); border-color: var(--warn); }
+  @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+  .hero-links { display: flex; gap: 0.85rem; margin-top: 2rem; flex-wrap: wrap; }
+  .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.6em 1.3em;
+    border: 1px solid var(--accent);
+    color: var(--bg);
+    background: var(--accent);
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  }
+  .btn:hover { background: transparent; color: var(--accent); box-shadow: 0 0 14px rgba(0,229,255,0.25); }
+  .btn.ghost { background: transparent; color: var(--muted); border-color: var(--border-bright); }
+  .btn.ghost:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 14px rgba(0,229,255,0.15); }
+
+  /* ====================== SECTIONS ====================== */
+  .section-break {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3.25rem 0 1.5rem;
+  }
+  .section-break span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .section-break::before, .section-break::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ====================== CLEARANCE ====================== */
+  .clearance-panel {
+    background: var(--surface);
+    border: 1px solid var(--green);
+    padding: 1.6rem 1.75rem;
+    margin: 1.25rem 0;
+    animation: pulse-border 4s ease-in-out infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0 rgba(0,255,136,0); }
+    50% { box-shadow: 0 0 22px rgba(0,255,136,0.18); }
+  }
+  .clearance-panel .blk-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--green);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  .clearance-lede {
+    font-size: 1.05rem;
+    color: var(--text-bright);
+    font-weight: 400;
+    margin-bottom: 1.1rem;
+  }
+  .clearance-lede strong { color: var(--green); font-weight: 600; }
+  .clearance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border-bright);
+    border: 1px solid var(--border-bright);
+  }
+  .clearance-cell { background: var(--surface2); padding: 1rem 1.1rem; }
+  .clearance-cell .c-head {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .clearance-cell p { font-size: 0.82rem; color: var(--text); line-height: 1.55; }
+  .clearance-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 1rem;
+  }
+
+  /* ====================== PROJECT GRID ====================== */
+  .project-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+  .project-card {
+    --glow: var(--accent);
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.15rem 1.3rem 1.05rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+  .project-card:hover {
+    border-color: var(--glow);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--glow) 25%, transparent), inset 0 0 30px rgba(0,0,0,0.25);
+    transform: translateY(-2px);
+  }
+  .card-top { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.55rem; }
+  .card-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--text-bright);
+    letter-spacing: 0.12em;
+    flex: 1;
+  }
+  .project-card:hover .card-name { color: var(--glow); }
+  .card-status {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.18em 0.55em;
+    white-space: nowrap;
+  }
+  .st-living { color: var(--warn); border: 1px solid var(--warn); }
+  .st-complete { color: var(--green); border: 1px solid var(--green); }
+  .st-active { color: var(--accent); border: 1px solid var(--accent); }
+  .card-desc { font-size: 0.82rem; color: var(--text); line-height: 1.55; margin-bottom: 0.7rem; flex: 1; }
+  .card-metric {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--glow);
+    border-left: 2px solid var(--glow);
+    padding-left: 0.6rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.7;
+  }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.8rem; }
+  .card-tags span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 0.12em 0.5em;
+    white-space: nowrap;
+  }
+  .card-cta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+  .project-card:hover .card-cta { color: var(--glow); }
+
+  /* ====================== SKILLS MATRIX ====================== */
+  .skills-matrix { display: flex; flex-direction: column; gap: 1rem; margin: 1.25rem 0; }
+  .skill-cat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+  }
+  .skill-cat .cat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.65rem;
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .skill-tags span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    padding: 0.25em 0.7em;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .cat-off .cat-label, .cat-off .skill-tags span { color: var(--accent2); border-color: rgba(255,64,129,0.4); }
+  .cat-def .cat-label, .cat-def .skill-tags span { color: var(--accent); border-color: rgba(0,229,255,0.35); }
+  .cat-res .cat-label, .cat-res .skill-tags span { color: var(--purple); border-color: rgba(124,111,255,0.4); }
+  .cat-wip .cat-label, .cat-wip .skill-tags span { color: var(--warn); border-color: rgba(255,170,0,0.4); }
+
+  /* ====================== ACTIVE DEVELOPMENT ====================== */
+  .activity-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.25rem 0; }
+  .activity-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.8rem 1.1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .activity-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 0.2em 0.6em;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+  }
+  .at-ongoing { color: var(--green); border: 1px solid var(--green); }
+  .at-build { color: var(--warn); border: 1px solid var(--warn); }
+  .at-target { color: var(--accent); border: 1px solid var(--accent); }
+  .activity-text { font-size: 0.85rem; color: var(--text); }
+  .activity-text strong { color: var(--text-bright); font-weight: 600; }
+  .activity-text a { color: var(--accent); text-decoration: none; }
+  .activity-text a:hover { text-decoration: underline; }
+
+  /* ====================== CONTACT ====================== */
+  .contact-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 1.4rem 1.6rem;
+    margin: 1.25rem 0;
+  }
+  .contact-panel .blk-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .contact-handle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--text-bright);
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.7rem;
+    text-decoration: none;
+  }
+  .contact-handle:hover { color: var(--accent); }
+  .contact-panel p { font-size: 0.85rem; margin-bottom: 0.45rem; }
+  .contact-panel p:last-child { margin-bottom: 0; }
+  .contact-panel .roles { color: var(--text-bright); }
+  .contact-panel .quiet { color: var(--muted); font-size: 0.78rem; }
+
+  /* ====================== FOOTER ====================== */
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+    margin-bottom: 1rem;
+  }
+  .footer-links a { color: var(--muted); text-decoration: none; }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-links .sep { color: var(--border-bright); }
+  .footer-base { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  .footer-base a { color: var(--muted); text-decoration: none; }
+  .footer-base a:hover { color: var(--accent); }
+
+  p { margin-bottom: 0.8rem; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ====================== RESPONSIVE ====================== */
+  @media (max-width: 768px) {
+    h1 { font-size: 2.3rem; }
+    .project-grid { grid-template-columns: 1fr; }
+    .clearance-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 420px) {
+    .container { padding: 0 1.25rem 4rem; }
+    h1 { font-size: 1.9rem; }
+    .typed-line { font-size: 0.82rem; }
+    .footer-base { flex-direction: column; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .status-pill .dot, .clearance-panel, .typed-line .cursor { animation: none; }
+    #rain { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Site">
+  <a class="nav-brand" href="#top">ROOTDRIFTER<span class="dim">//</span>HUB</a>
+  <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">☰ MENU</button>
+  <div class="nav-links" id="navLinks">
+    <a href="#clearance">CLEARANCE</a>
+    <a href="#projects">PROJECTS</a>
+    <a href="#skills">SKILLS</a>
+    <a href="#activity">ACTIVITY</a>
+    <a href="#contact">CONTACT</a>
+    <a class="ext" href="https://github.com/rootdrifter">GITHUB ↗</a>
+  </div>
+</nav>
+
+<div class="container" id="top">
+
+  <!-- ====================== HERO ====================== -->
+  <header class="hero">
+    <canvas id="rain" aria-hidden="true"></canvas>
+    <div class="hero-inner">
+      <div class="sys-label">// ROOTDRIFTER — SECURITY PORTFOLIO</div>
+      <h1>Root<span class="slash">//</span>Drifter</h1>
+      <div class="hero-sub">HARDENED SYSTEMS · OFFENSIVE METHODOLOGY · APPLIED ML SECURITY RESEARCH</div>
+      <p class="typed-line" aria-label="Security clearance held now — deployable to cleared work from day one.">
+        <span id="typed"></span><span class="cursor" aria-hidden="true">█</span>
+      </p>
+      <noscript>
+        <p class="typed-line">Security clearance held now — deployable to cleared work from day one.</p>
+      </noscript>
+      <div class="status-row">
+        <span class="status-pill pill-cleared"><span class="dot">●</span> CLEARED</span>
+        <span class="status-pill pill-active"><span class="dot">●</span> ACTIVE</span>
+        <span class="status-pill pill-avail"><span class="dot">●</span> AVAILABLE</span>
+      </div>
+      <div class="hero-links">
+        <a class="btn" href="https://github.com/rootdrifter">GITHUB.COM/ROOTDRIFTER →</a>
+        <a class="btn ghost" href="#projects">VIEW PROJECTS ↓</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ====================== CLEARANCE ====================== -->
+  <div class="section-break" id="clearance"><span>Security Clearance — The Differentiator</span></div>
+
+  <div class="clearance-panel">
+    <span class="blk-label">// CLEARANCE STATUS: HELD</span>
+    <p class="clearance-lede"><strong>Active security clearance, held now</strong> — not pending,
+    not conditional on vetting. Most graduates wait 6–12 months for clearance after a conditional
+    offer. This one is already in place.</p>
+    <div class="clearance-grid">
+      <div class="clearance-cell">
+        <span class="c-head">No Vetting Wait</span>
+        <p>The 6–12 month post-offer vetting backlog that stalls most graduate hires into cleared
+        roles does not apply. The clearance process is already complete.</p>
+      </div>
+      <div class="clearance-cell">
+        <span class="c-head">Day-One Deployable</span>
+        <p>Assignable to cleared projects, environments, and client sites from the first day of
+        employment — no holding pattern on unclassified work while vetting runs.</p>
+      </div>
+      <div class="clearance-cell">
+        <span class="c-head">Lower Risk &amp; Cost</span>
+        <p>Hiring an uncleared candidate onto a cleared contract is a sponsorship gamble with a
+        real failure rate. A clearance in hand removes that risk and its carrying cost.</p>
+      </div>
+    </div>
+    <p class="clearance-note">UK-issued and relevant to NATO-aligned work, with transferable context
+    for EU defence and intelligence-adjacent employers in the Netherlands and Germany.</p>
+  </div>
+
+  <!-- ====================== PROJECTS ====================== -->
+  <div class="section-break" id="projects"><span>Portfolio — Six Projects</span></div>
+
+  <div class="project-grid">
+
+    <a class="project-card" href="https://rootdrifter.github.io/ironveil/" style="--glow:#00e5ff">
+      <div class="card-top">
+        <span class="card-name">IRONVEIL</span>
+        <span class="card-status st-living">Living Build</span>
+      </div>
+      <p class="card-desc">Hardened Fedora workstation built to a defence-in-depth threat model:
+      LUKS2 full-disk encryption unlocked by a FIDO2 hardware key, remote pre-boot SSH unlock,
+      and all DNS filtered before it leaves the host.</p>
+      <div class="card-metric">FIDO2 hardware-key disk unlock · 6-layer defence in depth</div>
+      <div class="card-tags">
+        <span>LUKS2</span><span>Nitrokey FIDO2</span><span>dracut-sshd</span><span>WireGuard</span><span>AdGuard Home</span>
+      </div>
+      <span class="card-cta">VIEW PROJECT →</span>
+    </a>
+
+    <a class="project-card" href="https://rootdrifter.github.io/nullbyte/" style="--glow:#00e87a">
+      <div class="card-top">
+        <span class="card-name">NULLBYTE</span>
+        <span class="card-status st-living">Living Build</span>
+      </div>
+      <p class="card-desc">GrapheneOS mobile platform on a Pixel 10 Pro Fold: nine independently
+      encrypted user profiles as compartmentalised trust boundaries, verified boot from a hardware
+      root of trust, per-app network policy.</p>
+      <div class="card-metric">9-profile mobile security architecture · Titan M2 verified boot</div>
+      <div class="card-tags">
+        <span>GrapheneOS</span><span>Titan M2</span><span>RethinkDNS</span><span>Termux</span><span>WireGuard</span>
+      </div>
+      <span class="card-cta">VIEW PROJECT →</span>
+    </a>
+
+    <a class="project-card" href="https://rootdrifter.github.io/spectre/" style="--glow:#ff3b3b">
+      <div class="card-top">
+        <span class="card-name">SPECTRE</span>
+        <span class="card-status st-complete">Complete</span>
+      </div>
+      <p class="card-desc">Grey-box penetration test of an Apache 2.4.58 host, run from a
+      self-hardened PostgreSQL server built to CIS Level 1. PTES-aligned methodology with findings
+      mapped to CWE, CIS, and ISO/IEC 27002.</p>
+      <div class="card-metric">7 findings · SHA-256 evidence chain · PTES methodology</div>
+      <div class="card-tags">
+        <span>nmap</span><span>Gobuster</span><span>Nikto</span><span>LinPEAS</span><span>CIS Benchmarks</span>
+      </div>
+      <span class="card-cta">VIEW PROJECT →</span>
+    </a>
+
+    <a class="project-card" href="https://rootdrifter.github.io/oracle/" style="--glow:#7c6fff">
+      <div class="card-top">
+        <span class="card-name">ORACLE</span>
+        <span class="card-status st-complete">Complete</span>
+      </div>
+      <p class="card-desc">Applied ML research with a security-relevant method: leakage-free image
+      classification under class imbalance — the same discipline that governs rare-attack-class
+      detection in intrusion detection pipelines.</p>
+      <div class="card-metric">93.97% from-scratch CNN vs 99.11% pretrained ResNet-18</div>
+      <div class="card-tags">
+        <span>PyTorch</span><span>CNN</span><span>ResNet-18</span><span>t-SNE</span><span>scikit-learn</span>
+      </div>
+      <span class="card-cta">VIEW PROJECT →</span>
+    </a>
+
+    <a class="project-card" href="https://rootdrifter.github.io/mirage/" style="--glow:#00c8b4">
+      <div class="card-top">
+        <span class="card-name">MIRAGE</span>
+        <span class="card-status st-complete">Complete</span>
+      </div>
+      <p class="card-desc">Dissertation research: can frontier LLMs reason causally about social
+      engineering, or only pattern-match its surface? Causal-discovery DAGs validated with DoWhy
+      refutation, four frontier models benchmarked against them.</p>
+      <div class="card-metric">88,647-email phishing corpus · ICC 0.98 rating reliability</div>
+      <div class="card-tags">
+        <span>DoWhy</span><span>causal DAGs</span><span>CVAE</span><span>4 frontier LLMs</span>
+      </div>
+      <span class="card-cta">VIEW PROJECT →</span>
+    </a>
+
+    <a class="project-card" href="https://rootdrifter.github.io/gauntlet/" style="--glow:#00e87a">
+      <div class="card-top">
+        <span class="card-name">GAUNTLET</span>
+        <span class="card-status st-active">Active</span>
+      </div>
+      <p class="card-desc">Methodology-first CTF practice on TryHackMe and HackTheBox: structured
+      writeups covering reconnaissance to root, with failure paths documented and every technique
+      mapped to MITRE ATT&amp;CK.</p>
+      <div class="card-metric">7 structured writeups · MITRE ATT&amp;CK mapped</div>
+      <div class="card-tags">
+        <span>TryHackMe</span><span>HackTheBox</span><span>MITRE ATT&amp;CK</span><span>PTES</span>
+      </div>
+      <span class="card-cta">VIEW PROJECT →</span>
+    </a>
+
+  </div>
+
+  <!-- ====================== SKILLS ====================== -->
+  <div class="section-break" id="skills"><span>Skills Matrix</span></div>
+
+  <div class="skills-matrix">
+    <div class="skill-cat cat-off">
+      <span class="cat-label">// Offensive</span>
+      <div class="skill-tags">
+        <span>PTES pentest methodology</span>
+        <span>vulnerability assessment</span>
+        <span>web enumeration</span>
+        <span>privilege-escalation analysis</span>
+        <span>CTF practice (THM / HTB)</span>
+        <span>SHA-256 evidence chain</span>
+      </div>
+    </div>
+    <div class="skill-cat cat-def">
+      <span class="cat-label">// Defensive</span>
+      <div class="skill-tags">
+        <span>Linux hardening (LUKS2 / SELinux)</span>
+        <span>mobile security architecture</span>
+        <span>FIDO2 / hardware MFA</span>
+        <span>network segmentation</span>
+        <span>WireGuard VPN</span>
+        <span>DNS filtering</span>
+        <span>CIS benchmark hardening</span>
+      </div>
+    </div>
+    <div class="skill-cat cat-res">
+      <span class="cat-label">// Research</span>
+      <div class="skill-tags">
+        <span>ML for security</span>
+        <span>causal inference</span>
+        <span>phishing / social-engineering analysis</span>
+        <span>dataset engineering</span>
+        <span>statistical evaluation</span>
+        <span>LLM evaluation</span>
+      </div>
+    </div>
+    <div class="skill-cat cat-wip">
+      <span class="cat-label">// In Progress</span>
+      <div class="skill-tags">
+        <span>CompTIA Security+ SY0-701</span>
+        <span>Wazuh SIEM home lab</span>
+        <span>CEH (exam scheduled 2026)</span>
+        <span>detection engineering</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== ACTIVE DEVELOPMENT ====================== -->
+  <div class="section-break" id="activity"><span>Active Development</span></div>
+
+  <p>This portfolio is a working surface, not a graduation snapshot — these tracks are moving now.</p>
+
+  <div class="activity-list">
+    <div class="activity-row">
+      <span class="activity-tag at-ongoing">Ongoing</span>
+      <div class="activity-text"><strong>sec-plus-notes</strong> — Security+ SY0-701 study notes
+      across all five exam domains, with a 50-question practice bank and 25 SOC shift scenarios.
+      <a href="https://github.com/rootdrifter/sec-plus-notes">github.com/rootdrifter/sec-plus-notes</a></div>
+    </div>
+    <div class="activity-row">
+      <span class="activity-tag at-ongoing">Ongoing</span>
+      <div class="activity-text"><strong>gauntlet</strong> — CTF writeups, growing as rooms are
+      completed; methodology and ATT&amp;CK mapping first, flags second.
+      <a href="https://rootdrifter.github.io/gauntlet/">rootdrifter.github.io/gauntlet</a></div>
+    </div>
+    <div class="activity-row">
+      <span class="activity-tag at-build">In Build</span>
+      <div class="activity-text"><strong>watchtower</strong> — Wazuh SIEM home lab with MITRE
+      ATT&amp;CK-mapped detection scenarios: the defensive counterpart that closes the
+      attack→detection loop. Goes public with its first measured results.</div>
+    </div>
+    <div class="activity-row">
+      <span class="activity-tag at-target">Target</span>
+      <div class="activity-text"><strong>CompTIA Security+ SY0-701</strong> — examination pending;
+      <strong>CEH</strong> exam scheduled 2026.</div>
+    </div>
+  </div>
+
+  <!-- ====================== CONTACT ====================== -->
+  <div class="section-break" id="contact"><span>Contact &amp; Availability</span></div>
+
+  <div class="contact-panel">
+    <span class="blk-label">// Available for cleared work</span>
+    <a class="contact-handle" href="https://github.com/rootdrifter">github.com/rootdrifter</a>
+    <p class="roles">Seeking cleared entry-level roles: <strong>SOC analyst · junior penetration
+    tester · security analyst</strong> — United Kingdom · Netherlands · Germany, open to
+    English-language roles internationally.</p>
+    <p class="quiet">Contact via GitHub — open an issue on any repository or use the profile links.</p>
+  </div>
+
+  <!-- ====================== FOOTER ====================== -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://rootdrifter.github.io/ironveil/">IRONVEIL</a><span class="sep">·</span>
+      <a href="https://rootdrifter.github.io/nullbyte/">NULLBYTE</a><span class="sep">·</span>
+      <a href="https://rootdrifter.github.io/spectre/">SPECTRE</a><span class="sep">·</span>
+      <a href="https://rootdrifter.github.io/oracle/">ORACLE</a><span class="sep">·</span>
+      <a href="https://rootdrifter.github.io/mirage/">MIRAGE</a><span class="sep">·</span>
+      <a href="https://rootdrifter.github.io/gauntlet/">GAUNTLET</a><span class="sep">·</span>
+      <span>WATCHTOWER (IN BUILD)</span>
+    </div>
+    <div class="footer-base">
+      <span>rootdrifter · security-cleared · 2026</span>
+      <a href="https://github.com/rootdrifter">ALL REPOSITORIES AT GITHUB.COM/ROOTDRIFTER</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Mobile nav toggle ---------- */
+  var toggle = document.getElementById('navToggle');
+  var links = document.getElementById('navLinks');
+  toggle.addEventListener('click', function () {
+    var open = links.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  links.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') {
+      links.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  /* ---------- Typed differentiator line ---------- */
+  var TYPED_TEXT = 'Security clearance held now — deployable to cleared work from day one.';
+  var typedEl = document.getElementById('typed');
+  if (reducedMotion) {
+    typedEl.textContent = TYPED_TEXT;
+  } else {
+    var i = 0;
+    (function type() {
+      if (i <= TYPED_TEXT.length) {
+        typedEl.textContent = TYPED_TEXT.slice(0, i);
+        i++;
+        setTimeout(type, i < 4 ? 220 : 28);
+      }
+    })();
+  }
+
+  /* ---------- Hero terminal rain (canvas) ---------- */
+  var canvas = document.getElementById('rain');
+  if (canvas && !reducedMotion) {
+    var ctx = canvas.getContext('2d');
+    var CHARS = '0123456789ABCDEF#$%&>_/\\|';
+    var FONT = 14;
+    var drops = [];
+    var last = 0;
+
+    function resize() {
+      var hero = canvas.parentElement;
+      canvas.width = hero.clientWidth;
+      canvas.height = hero.clientHeight;
+      var cols = Math.floor(canvas.width / FONT);
+      drops = [];
+      for (var c = 0; c < cols; c++) drops.push(Math.random() * canvas.height / FONT);
+    }
+
+    function draw(ts) {
+      requestAnimationFrame(draw);
+      if (document.hidden) return;
+      if (ts - last < 66) return; /* ~15 fps — rain should drift, not race */
+      last = ts;
+      ctx.fillStyle = 'rgba(9, 13, 18, 0.18)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#00e5ff';
+      ctx.font = FONT + "px 'Share Tech Mono', monospace";
+      for (var c = 0; c < drops.length; c++) {
+        var ch = CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+        ctx.fillText(ch, c * FONT, drops[c] * FONT);
+        if (drops[c] * FONT > canvas.height && Math.random() > 0.975) drops[c] = 0;
+        drops[c] += 0.5;
+      }
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(draw);
+  }
+})();
+</script>
+
+</body>
+</html>
