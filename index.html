@@ -347,6 +347,26 @@
     margin-top: 1rem;
   }
 
+  /* Live GitHub stats strip — data signal, not centrepiece */
+  .gh-stats {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.7rem;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    margin: 0.4rem 0 0.2rem;
+  }
+  .gh-stat { white-space: nowrap; }
+  .gh-k { color: var(--muted); }
+  .gh-v { color: var(--accent); }
+  .gh-sep { color: var(--border-bright); }
+  .gh-link { color: var(--muted); text-decoration: none; }
+  .gh-link:hover { color: var(--accent); }
+
+  /* Scroll reading-progress bar — 2px, top of viewport above the nav */
+  .scroll-progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0;
+    background: var(--accent); z-index: 250; pointer-events: none;
+  }
+
   /* ====================== PROJECT GRID ====================== */
   .project-grid {
     display: grid;
@@ -593,7 +613,7 @@
       text-shadow: none !important;
     }
     body { background: #fff; }
-    body::before, .nav, #rain, .skip-link, .hero-links,
+    body::before, .nav, #rain, .skip-link, .hero-links, .scroll-progress, .gh-stats,
     .typed-line .cursor, .nav-toggle, .theme-toggle { display: none !important; }
     body { padding-top: 0; }
     .container { max-width: 100%; padding: 0; }
@@ -618,6 +638,7 @@
 </head>
 <body>
 
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 <a class="skip-link" href="#top">Skip to content</a>
 
 <nav class="nav" aria-label="Site">
@@ -645,11 +666,11 @@
       <div class="sys-label">// ROOTDRIFTER — SECURITY PORTFOLIO</div>
       <h1>Root<span class="slash">//</span>Drifter</h1>
       <div class="hero-sub">HARDENED SYSTEMS · OFFENSIVE METHODOLOGY · APPLIED ML SECURITY RESEARCH</div>
-      <p class="typed-line" aria-label="Security clearance held now — deployable to cleared work from day one.">
+      <p class="typed-line" aria-label="Security-cleared and deployable from day one. A cleared professional with no vetting delay, ready for cleared work immediately.">
         <span id="typed"></span><span class="cursor" aria-hidden="true">█</span>
       </p>
       <noscript>
-        <p class="typed-line">Security clearance held now — deployable to cleared work from day one.</p>
+        <p class="typed-line">Security-cleared. Deployable from day one — no vetting delay.</p>
       </noscript>
       <div class="status-row">
         <span class="status-pill pill-cleared"><span class="dot">●</span> CLEARED</span>
@@ -690,6 +711,16 @@
     </div>
     <p class="clearance-note">UK-issued and relevant to NATO-aligned work, with transferable context
     for EU defence and intelligence-adjacent employers in the Netherlands and Germany.</p>
+  </div>
+
+  <div class="gh-stats" id="ghStats" aria-label="Live GitHub activity">
+    <span class="gh-stat"><span class="gh-k">Public repos</span> <span class="gh-v" id="ghRepos">—</span></span>
+    <span class="gh-sep">·</span>
+    <span class="gh-stat"><span class="gh-k">Stars</span> <span class="gh-v" id="ghStars">—</span></span>
+    <span class="gh-sep">·</span>
+    <span class="gh-stat"><span class="gh-k">Last commit</span> <span class="gh-v" id="ghCommit">—</span></span>
+    <span class="gh-sep">·</span>
+    <a class="gh-stat gh-link" href="https://github.com/rootdrifter">github.com/rootdrifter ↗</a>
   </div>
 
   <!-- ====================== PROJECTS ====================== -->
@@ -951,18 +982,27 @@
   syncThemeBtn();
 
   /* ---------- Typed differentiator line ---------- */
-  var TYPED_TEXT = 'Security clearance held now — deployable to cleared work from day one.';
+  var TYPED_PHRASES = [
+    'Security-cleared. Deployable from day one.',
+    'Cleared professional. No vetting delay.',
+    'Ready for cleared work. Immediately.'
+  ];
   var typedEl = document.getElementById('typed');
-  window.addEventListener('beforeprint', function () { typedEl.textContent = TYPED_TEXT; });
+  window.addEventListener('beforeprint', function () { typedEl.textContent = TYPED_PHRASES[0]; });
   if (reducedMotion) {
-    typedEl.textContent = TYPED_TEXT;
+    typedEl.textContent = TYPED_PHRASES[0];
   } else {
-    var i = 0;
-    (function type() {
-      if (i <= TYPED_TEXT.length) {
-        typedEl.textContent = TYPED_TEXT.slice(0, i);
-        i++;
-        setTimeout(type, i < 4 ? 220 : 28);
+    var p = 0, c = 0, deleting = false;
+    (function tick() {
+      var phrase = TYPED_PHRASES[p];
+      if (!deleting) {
+        typedEl.textContent = phrase.slice(0, ++c);
+        if (c === phrase.length) { deleting = true; setTimeout(tick, 2000); return; }  /* pause 2s when complete */
+        setTimeout(tick, 50);                                                          /* type 50ms/char */
+      } else {
+        typedEl.textContent = phrase.slice(0, --c);
+        if (c === 0) { deleting = false; p = (p + 1) % TYPED_PHRASES.length; setTimeout(tick, 350); return; }
+        setTimeout(tick, 30);                                                          /* delete 30ms/char */
       }
     })();
   }
@@ -1007,6 +1047,75 @@
     window.addEventListener('resize', resize);
     requestAnimationFrame(draw);
   }
+
+  /* ---------- Scroll reading-progress bar ---------- */
+  var bar = document.getElementById('scrollProgress');
+  if (bar) {
+    var ticking = false;
+    function updateBar() {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+      bar.style.width = pct + '%';
+      ticking = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { window.requestAnimationFrame(updateBar); ticking = true; }
+    }, { passive: true });
+    window.addEventListener('resize', updateBar);
+    updateBar();
+  }
+
+  /* ---------- Live GitHub stats (public API, no auth) ---------- */
+  (function ghStats() {
+    var elRepos = document.getElementById('ghRepos'),
+        elStars = document.getElementById('ghStars'),
+        elCommit = document.getElementById('ghCommit');
+    if (!elRepos) return;
+
+    function rel(iso) {
+      var then = new Date(iso).getTime();
+      if (isNaN(then)) return null;
+      var s = Math.floor((Date.now() - then) / 1000);
+      if (s < 3600) return Math.max(1, Math.floor(s / 60)) + 'm ago';
+      if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+      var d = Math.floor(s / 86400);
+      if (d < 30) return d + 'd ago';
+      if (d < 365) return Math.floor(d / 30) + 'mo ago';
+      return Math.floor(d / 365) + 'y ago';
+    }
+
+    /* Graceful fallback: if the API is rate-limited/unreachable, leave honest dashes. */
+    function fallback() {
+      if (elRepos.textContent === '—') elRepos.textContent = 'n/a';
+      if (elStars.textContent === '—') elStars.textContent = 'n/a';
+      if (elCommit.textContent === '—') elCommit.textContent = 'n/a';
+    }
+    if (!window.fetch) { fallback(); return; }
+
+    fetch('https://api.github.com/users/rootdrifter')
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (u) { if (typeof u.public_repos === 'number') elRepos.textContent = u.public_repos; })
+      .catch(function () {});
+
+    fetch('https://api.github.com/users/rootdrifter/repos?per_page=100&sort=pushed')
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (repos) {
+        if (!Array.isArray(repos) || !repos.length) throw 0;
+        var stars = 0, latest = 0;
+        repos.forEach(function (repo) {
+          stars += repo.stargazers_count || 0;
+          var t = new Date(repo.pushed_at).getTime();
+          if (t > latest) latest = t;
+        });
+        elStars.textContent = stars;
+        var r2 = latest ? rel(new Date(latest).toISOString()) : null;
+        elCommit.textContent = r2 || 'recently';
+      })
+      .catch(function () {});
+
+    /* If nothing resolved within 6s (offline/rate-limited), show honest fallback. */
+    setTimeout(fallback, 6000);
+  })();
 })();
 </script>
 
