@@ -43,6 +43,8 @@
   "knowsAbout": ["penetration testing", "Linux hardening", "mobile security", "SIEM", "machine learning security", "causal inference", "DNS filtering", "FIDO2"]
 }
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -83,6 +85,23 @@
     pointer-events: none;
     z-index: 100;
   }
+
+  .skip-link {
+    position: fixed;
+    left: -9999px;
+    top: 0.5rem;
+    z-index: 300;
+    background: var(--surface);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.5rem 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .skip-link:focus { left: 0.5rem; }
 
   /* ====================== NAV ====================== */
   .nav {
@@ -236,7 +255,10 @@
     gap: 1rem;
     margin: 3.25rem 0 1.5rem;
   }
-  .section-break span {
+  .section-break h2 {
+    font-weight: 400;
+  }
+  .section-break span, .section-break h2 {
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.65rem;
     letter-spacing: 0.25em;
@@ -516,6 +538,8 @@
 </head>
 <body>
 
+<a class="skip-link" href="#top">Skip to content</a>
+
 <nav class="nav" aria-label="Site">
   <a class="nav-brand" href="#top">ROOTDRIFTER<span class="dim">//</span>HUB</a>
   <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">☰ MENU</button>
@@ -557,7 +581,7 @@
   </header>
 
   <!-- ====================== CLEARANCE ====================== -->
-  <div class="section-break" id="clearance"><span>Security Clearance — The Differentiator</span></div>
+  <div class="section-break" id="clearance"><h2>Security Clearance — The Differentiator</h2></div>
 
   <div class="clearance-panel">
     <span class="blk-label">// CLEARANCE STATUS: HELD</span>
@@ -586,7 +610,7 @@
   </div>
 
   <!-- ====================== PROJECTS ====================== -->
-  <div class="section-break" id="projects"><span>Portfolio — Six Projects</span></div>
+  <div class="section-break" id="projects"><h2>Portfolio — Six Projects</h2></div>
 
   <div class="project-grid">
 
@@ -683,7 +707,7 @@
   </div>
 
   <!-- ====================== SKILLS ====================== -->
-  <div class="section-break" id="skills"><span>Skills Matrix</span></div>
+  <div class="section-break" id="skills"><h2>Skills Matrix</h2></div>
 
   <div class="skills-matrix">
     <div class="skill-cat cat-off">
@@ -732,7 +756,7 @@
   </div>
 
   <!-- ====================== ACTIVE DEVELOPMENT ====================== -->
-  <div class="section-break" id="activity"><span>Active Development</span></div>
+  <div class="section-break" id="activity"><h2>Active Development</h2></div>
 
   <p>This portfolio is a working surface, not a graduation snapshot — these tracks are moving now.</p>
 
@@ -763,7 +787,7 @@
   </div>
 
   <!-- ====================== CONTACT ====================== -->
-  <div class="section-break" id="contact"><span>Contact &amp; Availability</span></div>
+  <div class="section-break" id="contact"><h2>Contact &amp; Availability</h2></div>
 
   <div class="contact-panel">
     <span class="blk-label">// Available for cleared work</span>
