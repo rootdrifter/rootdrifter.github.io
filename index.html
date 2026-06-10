@@ -43,6 +43,7 @@
   "knowsAbout": ["penetration testing", "Linux hardening", "mobile security", "SIEM", "machine learning security", "causal inference", "DNS filtering", "FIDO2"]
 }
 </script>
+<script>try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light'); } catch (e) {}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
@@ -62,6 +63,23 @@
     --code-bg: #060a0f;
     --green: #00ff88;
     --purple: #7c6fff;
+  }
+
+  /* Light theme — structural tokens only; accent colours unchanged. Default: dark. */
+  html.light {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #e8eef5;
+    --border: #d0dce8;
+    --border-bright: #b0c4d6;
+    --text: #1a2a3a;
+    --text-bright: #06121f;
+    --muted: #5a7488;
+    --code-bg: #e4ecf3;
+  }
+  html.light h1 { color: #06121f; }
+  html.light body::before {
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -112,7 +130,7 @@
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 1.4rem;
     padding: 0 1.25rem;
     z-index: 200;
     font-family: 'Share Tech Mono', monospace;
@@ -122,16 +140,19 @@
   }
   .nav-brand { color: var(--accent); text-decoration: none; white-space: nowrap; }
   .nav-brand .dim { color: var(--muted); }
-  .nav-links { display: flex; gap: 1.4rem; align-items: center; }
+  .nav-links { display: flex; gap: 1.4rem; align-items: center; margin-left: auto; }
   .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
   .nav-links a:hover { color: var(--accent); }
   .nav-links a.ext { color: var(--accent2); }
-  .nav-toggle {
-    display: none;
+  .nav-actions { display: flex; gap: 0.5rem; align-items: center; }
+  .nav-toggle, .theme-toggle {
     background: none; border: 1px solid var(--border-bright); color: var(--muted);
     font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
     letter-spacing: 0.15em; padding: 0.15rem 0.55rem; cursor: pointer;
+    text-transform: uppercase;
   }
+  .nav-toggle { display: none; }
+  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
   @media (max-width: 768px) {
     .nav-links {
       display: none;
@@ -146,6 +167,7 @@
     .nav-links.open { display: flex; }
     .nav-links a { padding: 0.6rem 1.25rem; width: 100%; }
     .nav-toggle { display: block; }
+    .nav-actions { margin-left: auto; }
   }
 
   .container {
@@ -539,7 +561,7 @@
      Clean single-column document for hiring managers who save or print.
      Dark-terminal styling becomes plain ink-on-paper; nav and motion go. */
   @media print {
-    :root, body, body.light {
+    :root, html.light, body {
       --bg: #ffffff;
       --surface: #ffffff;
       --surface2: #ffffff;
@@ -563,7 +585,7 @@
     }
     body { background: #fff; }
     body::before, .nav, #rain, .skip-link, .hero-links,
-    .typed-line .cursor, .nav-toggle { display: none !important; }
+    .typed-line .cursor, .nav-toggle, .theme-toggle { display: none !important; }
     body { padding-top: 0; }
     .container { max-width: 100%; padding: 0; }
     .hero { padding: 1rem 0 1.5rem; overflow: visible; }
@@ -591,7 +613,6 @@
 
 <nav class="nav" aria-label="Site">
   <a class="nav-brand" href="#top">ROOTDRIFTER<span class="dim">//</span>HUB</a>
-  <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">☰ MENU</button>
   <div class="nav-links" id="navLinks">
     <a href="#clearance">CLEARANCE</a>
     <a href="#projects">PROJECTS</a>
@@ -599,6 +620,10 @@
     <a href="#activity">ACTIVITY</a>
     <a href="#contact">CONTACT</a>
     <a class="ext" href="https://github.com/rootdrifter">GITHUB ↗</a>
+  </div>
+  <div class="nav-actions">
+    <button class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="Switch to light theme">◐ LIGHT</button>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">☰ MENU</button>
   </div>
 </nav>
 
@@ -886,6 +911,21 @@
     }
   });
 
+  /* ---------- Dark/light theme toggle (default: dark) ---------- */
+  var themeBtn = document.getElementById('themeToggle');
+  function syncThemeBtn() {
+    var light = document.documentElement.classList.contains('light');
+    themeBtn.textContent = light ? '◐ DARK' : '◐ LIGHT';
+    themeBtn.setAttribute('aria-pressed', light ? 'true' : 'false');
+    themeBtn.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
+  }
+  themeBtn.addEventListener('click', function () {
+    document.documentElement.classList.toggle('light');
+    try { localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark'); } catch (e) {}
+    syncThemeBtn();
+  });
+  syncThemeBtn();
+
   /* ---------- Typed differentiator line ---------- */
   var TYPED_TEXT = 'Security clearance held now — deployable to cleared work from day one.';
   var typedEl = document.getElementById('typed');
@@ -926,7 +966,8 @@
       if (document.hidden) return;
       if (ts - last < 66) return; /* ~15 fps — rain should drift, not race */
       last = ts;
-      ctx.fillStyle = 'rgba(9, 13, 18, 0.18)';
+      ctx.fillStyle = document.documentElement.classList.contains('light')
+        ? 'rgba(240, 244, 248, 0.18)' : 'rgba(9, 13, 18, 0.18)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = '#00e5ff';
       ctx.font = FONT + "px 'Share Tech Mono', monospace";
