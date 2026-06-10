@@ -370,6 +370,14 @@
     box-shadow: 0 0 18px color-mix(in srgb, var(--glow) 25%, transparent), inset 0 0 30px rgba(0,0,0,0.25);
     transform: translateY(-2px);
   }
+  /* Coming-soon card: present in the grid but not yet live — no link, dimmed, no hover lift. */
+  .project-card.coming { cursor: default; opacity: 0.7; }
+  .project-card.coming:hover {
+    border-color: var(--border);
+    box-shadow: none;
+    transform: none;
+  }
+  .project-card.coming:hover .card-name { color: var(--text-bright); }
   .card-top { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.55rem; }
   .card-name {
     font-family: 'Share Tech Mono', monospace;
@@ -390,6 +398,7 @@
   .st-living { color: var(--warn); border: 1px solid var(--warn); }
   .st-complete { color: var(--green); border: 1px solid var(--green); }
   .st-active { color: var(--accent); border: 1px solid var(--accent); }
+  .st-build { color: var(--warn); border: 1px solid var(--warn); }
   .card-desc { font-size: 0.82rem; color: var(--text); line-height: 1.55; margin-bottom: 0.7rem; flex: 1; }
   .card-metric {
     font-family: 'Share Tech Mono', monospace;
@@ -777,6 +786,21 @@
       </div>
       <span class="card-cta">VIEW PROJECT →</span>
     </a>
+
+    <div class="project-card coming" style="--glow:#ffaa00" aria-disabled="true">
+      <div class="card-top">
+        <span class="card-name">WATCHTOWER</span>
+        <span class="card-status st-build">In Build</span>
+      </div>
+      <p class="card-desc">Self-hosted Wazuh SIEM home lab with ten MITRE ATT&amp;CK-mapped detection
+      scenarios that re-use the gauntlet attack techniques as the detections — the defensive
+      counterpart that closes the attack→detection loop.</p>
+      <div class="card-metric">10 ATT&amp;CK detection scenarios · MTTD/MTTR goals</div>
+      <div class="card-tags">
+        <span>Wazuh</span><span>SIEM</span><span>Detection Eng.</span><span>Blue Team</span>
+      </div>
+      <span class="card-cta">COMING SOON</span>
+    </div>
 
   </div>
 
